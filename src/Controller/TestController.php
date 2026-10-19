@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Signature\AutoSignature;
+use Dkbs\DkbsignBundle\Signature\AutoSignature;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;

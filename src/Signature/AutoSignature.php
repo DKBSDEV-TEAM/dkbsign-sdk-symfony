@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Signature;
-use Symfony\Component\Mime\Part\DataPart;
+namespace Dkbs\DkbsignBundle\Signature;
 
-use App\Client\Client;
+use Dkbs\DkbsignBundle\Client\Client;
+use Symfony\Component\Mime\Part\DataPart;
 
 class AutoSignature
 {
@@ -15,6 +15,7 @@ class AutoSignature
     {
         return $this->client->requete('POST', '/api/v4/sign/otp');
     }
+
     public function selfSign(
         string $cheminPdf,
         string $cheminImage,
@@ -27,7 +28,7 @@ class AutoSignature
             'signature_level' => $niveau,
             'otp_code' => (string) $codeOtp,
         ];
-    
+
         return $this->client->envoyerFormulaire('/api/v4/sign', [
             'file' => DataPart::fromPath($cheminPdf),
             'params' => json_encode($params),

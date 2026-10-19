@@ -1,0 +1,3 @@
+dkbsign:
+    api_url: '%env(DKBSIGN_API_URL)%'
+    api_token: '%env(DKBSIGN_API_TOKEN)%'
