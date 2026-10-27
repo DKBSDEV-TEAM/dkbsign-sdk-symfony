@@ -3,12 +3,12 @@
 namespace Dkbs\DkbsignBundle;
 
 use Dkbs\DkbsignBundle\Client\Client;
-use Dkbs\DkbsignBundle\Signature\AutoSignature;
+use Dkbs\DkbsignBundle\Signature\SelfSign;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
-use Dkbs\DkbsignBundle\Signature\Enveloppe;
+use Dkbs\DkbsignBundle\Signature\Envelope;
 
 final class DkbsignBundle extends AbstractBundle
 {
@@ -35,9 +35,9 @@ final class DkbsignBundle extends AbstractBundle
             ->arg('$apiUrl', $config['api_url'])
             ->arg('$apiToken', $config['api_token']);
 
-        $services->set(AutoSignature::class)
+        $services->set(SelfSign::class)
             ->autowire();
-        $services->set(Enveloppe::class)
+        $services->set(Envelope::class)
             ->autowire();
     }
 }

@@ -18,9 +18,9 @@ final class DkbsignBundleTest extends KernelTestCase
         self::bootKernel();
         $container = static::getContainer();
 
-        $resultat = $container->get('test.auto_signature')->sendOtp();
+        $result = $container->get('test.self_sign')->sendOtp();
 
-        $this->assertSame(['statusCode' => 200, 'body' => ['success' => true]], $resultat);
+        $this->assertSame(['statusCode' => 200, 'body' => ['success' => true]], $result);
 
         $requests = $container->get(RecordingResponseFactory::class)->requests;
         $this->assertCount(1, $requests);
@@ -40,7 +40,7 @@ final class DkbsignBundleTest extends KernelTestCase
             self::bootKernel();
             $container = static::getContainer();
 
-            $resultat = $container->get('test.auto_signature')->selfSign(
+            $result = $container->get('test.self_sign')->selfSign(
                 $pdf,
                 $image,
                 'simple',
@@ -52,14 +52,14 @@ final class DkbsignBundleTest extends KernelTestCase
             unlink($image);
         }
 
-        $this->assertSame(200, $resultat['statusCode']);
+        $this->assertSame(200, $result['statusCode']);
 
         $request = $container->get(RecordingResponseFactory::class)->requests[0];
         $this->assertSame('https://api.dkbsign.test/api/v4/sign', $request['url']);
         $this->assertStringStartsWith('Content-Type: multipart/form-data; boundary=', $request['options']['normalized_headers']['content-type'][0]);
     }
 
-    public function testCreerEnveloppeSendsTheDocumentAndPayload(): void
+    public function testCreateEnvelopeSendsTheDocumentAndPayload(): void
     {
         $pdf = tempnam(sys_get_temp_dir(), 'pdf');
         file_put_contents($pdf, '%PDF-1.4');
@@ -68,12 +68,12 @@ final class DkbsignBundleTest extends KernelTestCase
             self::bootKernel();
             $container = static::getContainer();
 
-            $resultat = $container->get('test.enveloppe')->creer($pdf, ['title' => 'Test enveloppe']);
+            $result = $container->get('test.envelope')->create($pdf, ['title' => 'Test enveloppe']);
         } finally {
             unlink($pdf);
         }
 
-        $this->assertSame(200, $resultat['statusCode']);
+        $this->assertSame(200, $result['statusCode']);
 
         $request = $container->get(RecordingResponseFactory::class)->requests[0];
         $this->assertSame('POST', $request['method']);
@@ -87,13 +87,13 @@ final class DkbsignBundleTest extends KernelTestCase
         self::bootKernel();
         $container = static::getContainer();
 
-        $resultat = $container->get('test.enveloppe')->sendInvitation(
+        $result = $container->get('test.envelope')->sendInvitation(
             'signataire@example.com',
             'Document en attente de signature',
             'https://sign.example.com/s?id=1&token=abc',
         );
 
-        $this->assertSame(200, $resultat['statusCode']);
+        $this->assertSame(200, $result['statusCode']);
 
         $request = $container->get(RecordingResponseFactory::class)->requests[0];
         $this->assertSame('POST', $request['method']);

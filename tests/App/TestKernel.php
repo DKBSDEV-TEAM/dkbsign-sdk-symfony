@@ -3,8 +3,8 @@
 namespace Dkbs\DkbsignBundle\Tests\App;
 
 use Dkbs\DkbsignBundle\DkbsignBundle;
-use Dkbs\DkbsignBundle\Signature\AutoSignature;
-use Dkbs\DkbsignBundle\Signature\Enveloppe;
+use Dkbs\DkbsignBundle\Signature\SelfSign;
+use Dkbs\DkbsignBundle\Signature\Envelope;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -47,7 +47,7 @@ final class TestKernel extends Kernel
 
         $services = $container->services();
         $services->set(RecordingResponseFactory::class)->public();
-        $services->alias('test.auto_signature', AutoSignature::class)->public();
-        $services->alias('test.enveloppe', Enveloppe::class)->public();
+        $services->alias('test.self_sign', SelfSign::class)->public();
+        $services->alias('test.envelope', Envelope::class)->public();
     }
 }

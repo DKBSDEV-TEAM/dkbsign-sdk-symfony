@@ -38,10 +38,10 @@ DKBSIGN_API_TOKEN=votre-token
 
 ## Utilisation
 
-Injectez `AutoSignature` dans vos services ou contrôleurs :
+Injectez `SelfSign` dans vos services ou contrôleurs :
 
 ```php
-use Dkbs\DkbsignBundle\Signature\AutoSignature;
+use Dkbs\DkbsignBundle\Signature\SelfSign;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -50,15 +50,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class SignatureController extends AbstractController
 {
     #[Route('/signature/otp', methods: ['POST'])]
-    public function otp(AutoSignature $autoSignature): JsonResponse
+    public function otp(SelfSign $selfSign): JsonResponse
     {
-        return $this->json($autoSignature->sendOtp());
+        return $this->json($selfSign->sendOtp());
     }
 
     #[Route('/signature/sign', methods: ['POST'])]
-    public function sign(AutoSignature $autoSignature, #[MapQueryParameter] int $code): JsonResponse
+    public function sign(SelfSign $selfSign, #[MapQueryParameter] int $code): JsonResponse
     {
-        return $this->json($autoSignature->selfSign(
+        return $this->json($selfSign->selfSign(
             '/chemin/vers/document.pdf',
             '/chemin/vers/signature.png',
             'simple',
@@ -76,12 +76,12 @@ final class SignatureController extends AbstractController
 
 ### Enveloppe (plusieurs signataires)
 
-Injectez `Enveloppe` pour créer une enveloppe puis envoyer le lien de signature par e-mail :
+Injectez `Envelope` pour créer une enveloppe puis envoyer le lien de signature par e-mail :
 
 ```php
-use Dkbs\DkbsignBundle\Signature\Enveloppe;
+use Dkbs\DkbsignBundle\Signature\Envelope;
 
-$resultat = $enveloppe->creer('/chemin/vers/document.pdf', [
+$result = $envelope->create('/chemin/vers/document.pdf', [
     'title' => 'Contrat',
     'message' => 'Merci de signer',
     'signing_order' => 'ordered',
@@ -100,12 +100,12 @@ $resultat = $enveloppe->creer('/chemin/vers/document.pdf', [
     ]],
 ]);
 
-$signataire = $resultat['body']['signers'][0];
+$signer = $result['body']['signers'][0];
 
-$enveloppe->sendInvitation(
-    $signataire['email'],
+$envelope->sendInvitation(
+    $signer['email'],
     'Document en attente de signature',
-    $signataire['signing_url'],
+    $signer['signing_url'],
 );
 ```
 
@@ -117,12 +117,14 @@ Le dépôt contient aussi une petite application Symfony (`src/Kernel.php`, `src
 
 ```bash
 composer install
+cp .env.example .env
 # renseignez DKBSIGN_API_TOKEN dans .env.local
 symfony serve -d
 ```
 
 - `GET /test-otp` : envoie l'OTP
 - `GET /test-sign?code=123456` : signe le document de test avec l'OTP reçu
+- `GET /test-envelope` : crée une enveloppe et envoie l'invitation au signataire
 
 ## Tests
 

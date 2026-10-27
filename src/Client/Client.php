@@ -14,26 +14,26 @@ class Client
     ) {
     }
 
-    public function requete(string $methode, string $chemin, array $options = []): array
+    public function request(string $method, string $path, array $options = []): array
     {
         $options['headers']['Authorization'] = 'Bearer '.$this->apiToken;
         $options['headers']['Accept'] = 'application/json';
 
-        $reponse = $this->httpClient->request($methode, rtrim($this->apiUrl, '/').$chemin, $options);
+        $response = $this->httpClient->request($method, rtrim($this->apiUrl, '/').$path, $options);
 
         return [
-            'statusCode' => $reponse->getStatusCode(),
-            'body' => $reponse->toArray(false),
+            'statusCode' => $response->getStatusCode(),
+            'body' => $response->toArray(false),
         ];
     }
 
-    public function envoyerFormulaire(string $chemin, array $champs): array
+    public function sendForm(string $path, array $fields): array
     {
-        $formulaire = new FormDataPart($champs);
+        $form = new FormDataPart($fields);
 
-        return $this->requete('POST', $chemin, [
-            'headers' => $formulaire->getPreparedHeaders()->toArray(),
-            'body' => $formulaire->bodyToIterable(),
+        return $this->request('POST', $path, [
+            'headers' => $form->getPreparedHeaders()->toArray(),
+            'body' => $form->bodyToIterable(),
         ]);
     }
 }
