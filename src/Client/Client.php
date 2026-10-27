@@ -1,37 +1,39 @@
 <?php
 
-namespace App\Client;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+namespace Dkbs\DkbsignBundle\Client;
 
-class Client{
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+class Client
+{
     public function __construct(
         private HttpClientInterface $httpClient,
-        #[Autowire('%dkbsign.api_url%')] private string $apiUrl,
-        #[Autowire('%dkbsign.api_token%')] private string $apiToken,
+        private string $apiUrl,
+        private string $apiToken,
     ) {
     }
-    public function requete(string $methode, string $chemin, array $options = []): array
+
+    public function request(string $method, string $path, array $options = []): array
     {
-    $options['headers']['Authorization'] = 'Bearer ' . $this->apiToken;
-    $options['headers']['Accept'] = 'application/json';
+        $options['headers']['Authorization'] = 'Bearer '.$this->apiToken;
+        $options['headers']['Accept'] = 'application/json';
 
-    $reponse = $this->httpClient->request($methode, $this->apiUrl . $chemin, $options);
+        $response = $this->httpClient->request($method, rtrim($this->apiUrl, '/').$path, $options);
 
-    return [
-        'statusCode' => $reponse->getStatusCode(),
-        'body' => $reponse->toArray(false),
-    ];
+        return [
+            'statusCode' => $response->getStatusCode(),
+            'body' => $response->toArray(false),
+        ];
     }
-    public function envoyerFormulaire(string $chemin, array $champs): array
-{
-    $formulaire = new FormDataPart($champs);
 
-    return $this->requete('POST', $chemin, [
-        'headers' => $formulaire->getPreparedHeaders()->toArray(),
-        'body' => $formulaire->bodyToIterable(),
-    ]);
-}
+    public function sendForm(string $path, array $fields): array
+    {
+        $form = new FormDataPart($fields);
 
+        return $this->request('POST', $path, [
+            'headers' => $form->getPreparedHeaders()->toArray(),
+            'body' => $form->bodyToIterable(),
+        ]);
+    }
 }
