@@ -74,6 +74,41 @@ final class SignatureController extends AbstractController
 }
 ```
 
+### Enveloppe (plusieurs signataires)
+
+Injectez `Enveloppe` pour créer une enveloppe puis envoyer le lien de signature par e-mail :
+
+```php
+use Dkbs\DkbsignBundle\Signature\Enveloppe;
+
+$resultat = $enveloppe->creer('/chemin/vers/document.pdf', [
+    'title' => 'Contrat',
+    'message' => 'Merci de signer',
+    'signing_order' => 'ordered',
+    'signature_level' => 'simple',
+    'signers' => [[
+        'name' => 'Nom',
+        'first_name' => 'Prénom',
+        'email' => 'signataire@example.com',
+        'phone' => '+2250000000000',
+        'priority' => 1,
+        'positions' => [
+            '0' => [
+                ['page' => 0, 'x' => 20, 'y' => 30, 'width' => 60, 'height' => 25, 'type' => 'signature'],
+            ],
+        ],
+    ]],
+]);
+
+$signataire = $resultat['body']['signers'][0];
+
+$enveloppe->sendInvitation(
+    $signataire['email'],
+    'Document en attente de signature',
+    $signataire['signing_url'],
+);
+```
+
 Chaque méthode renvoie un tableau `['statusCode' => int, 'body' => array]`.
 
 ## Démo locale

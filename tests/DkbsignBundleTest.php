@@ -58,4 +58,50 @@ final class DkbsignBundleTest extends KernelTestCase
         $this->assertSame('https://api.dkbsign.test/api/v4/sign', $request['url']);
         $this->assertStringStartsWith('Content-Type: multipart/form-data; boundary=', $request['options']['normalized_headers']['content-type'][0]);
     }
+
+    public function testCreerEnveloppeSendsTheDocumentAndPayload(): void
+    {
+        $pdf = tempnam(sys_get_temp_dir(), 'pdf');
+        file_put_contents($pdf, '%PDF-1.4');
+
+        try {
+            self::bootKernel();
+            $container = static::getContainer();
+
+            $resultat = $container->get('test.enveloppe')->creer($pdf, ['title' => 'Test enveloppe']);
+        } finally {
+            unlink($pdf);
+        }
+
+        $this->assertSame(200, $resultat['statusCode']);
+
+        $request = $container->get(RecordingResponseFactory::class)->requests[0];
+        $this->assertSame('POST', $request['method']);
+        $this->assertSame('https://api.dkbsign.test/api/v4/envelopes', $request['url']);
+        $this->assertSame(['Authorization: Bearer test-token'], $request['options']['normalized_headers']['authorization']);
+        $this->assertStringStartsWith('Content-Type: multipart/form-data; boundary=', $request['options']['normalized_headers']['content-type'][0]);
+    }
+
+    public function testSendInvitationSendsAnEmailWithTheEscapedSigningLink(): void
+    {
+        self::bootKernel();
+        $container = static::getContainer();
+
+        $resultat = $container->get('test.enveloppe')->sendInvitation(
+            'signataire@example.com',
+            'Document en attente de signature',
+            'https://sign.example.com/s?id=1&token=abc',
+        );
+
+        $this->assertSame(200, $resultat['statusCode']);
+
+        $request = $container->get(RecordingResponseFactory::class)->requests[0];
+        $this->assertSame('POST', $request['method']);
+        $this->assertSame('https://api.dkbsign.test/api/notifications/email', $request['url']);
+
+        $body = json_decode($request['options']['body'], true);
+        $this->assertSame('signataire@example.com', $body['email']);
+        $this->assertSame('Document en attente de signature', $body['subject']);
+        $this->assertStringContainsString('href="https://sign.example.com/s?id=1&amp;token=abc"', $body['body']);
+    }
 }

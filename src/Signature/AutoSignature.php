@@ -35,4 +35,5 @@ class AutoSignature
             'signature_image' => DataPart::fromPath($cheminImage),
         ]);
     }
+    
 }

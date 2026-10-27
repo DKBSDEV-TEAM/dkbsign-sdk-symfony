@@ -8,6 +8,7 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Dkbs\DkbsignBundle\Signature\Enveloppe;
 
 final class DkbsignBundle extends AbstractBundle
 {
@@ -35,6 +36,8 @@ final class DkbsignBundle extends AbstractBundle
             ->arg('$apiToken', $config['api_token']);
 
         $services->set(AutoSignature::class)
+            ->autowire();
+        $services->set(Enveloppe::class)
             ->autowire();
     }
 }
